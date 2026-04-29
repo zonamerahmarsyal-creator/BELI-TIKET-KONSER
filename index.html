@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ticket Event</title>
+
+<style>
+*{box-sizing:border-box;font-family:sans-serif;}
+body{margin:0;background:#f2f2f2;}
+
+/* PAGE */
+.page{display:none;padding:15px;}
+.active{display:block;}
+
+/* POSTER */
+.poster{
+  width:100%;
+  height:200px;
+  border-radius:20px;
+  background:url('POSTER_KAMU.jpg') center/cover;
+  position:relative;
+  margin-bottom:15px;
+}
+.poster::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(to top,rgba(0,0,0,0.6),transparent);
+  border-radius:20px;
+}
+.poster-text{
+  position:absolute;
+  bottom:15px;
+  left:15px;
+  color:white;
+  z-index:2;
+}
+.poster-text h2{margin:0;font-size:20px;}
+
+/* CARD */
+.card{
+  background:white;
+  border-radius:20px;
+  padding:15px;
+  margin-bottom:15px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.08);
+}
+
+.title{color:#888;}
+.price{font-size:18px;font-weight:bold;margin:5px 0;}
+
+/* QTY */
+.qty-control{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-top:10px;
+}
+.qty-control button{
+  width:35px;height:35px;
+  border:none;border-radius:10px;
+  background:black;color:white;font-size:18px;
+}
+.qty{font-size:18px;}
+
+/* TOTAL BAR */
+.total-bar{
+  position:fixed;
+  bottom:0;left:0;right:0;
+  background:white;
+  padding:15px;
+  box-shadow:0 -2px 10px rgba(0,0,0,0.1);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+/* BUTTON */
+.btn{
+  background:#2ecc71;
+  border:none;
+  color:white;
+  padding:10px 15px;
+  border-radius:10px;
+  font-weight:bold;
+}
+
+/* FORM */
+input,select{
+  width:100%;
+  padding:10px;
+  border-radius:10px;
+  border:1px solid #ddd;
+  margin-bottom:10px;
+}
+
+/* CENTER */
+.center{text-align:center;}
+</style>
+</head>
+
+<body>
+
+<!-- ================= PAGE 1 ================= -->
+<div class="page active" id="page1">
+
+<div class="poster">
+  <div class="poster-text">
+    <h2>Sunset di Kebun</h2>
+    <small>Event Ticket</small>
+  </div>
+</div>
+
+<div class="card">
+  <div class="title">VIP</div>
+  <div class="price">Rp400.000</div>
+  <div class="qty-control">
+    <button onclick="changeQty('vip',-1)">-</button>
+    <div class="qty" id="vip">0</div>
+    <button onclick="changeQty('vip',1)">+</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="title">Intimate Couple</div>
+  <div class="price">Rp350.000</div>
+  <div class="qty-control">
+    <button onclick="changeQty('couple',-1)">-</button>
+    <div class="qty" id="couple">0</div>
+    <button onclick="changeQty('couple',1)">+</button>
+  </div>
+</div>
+
+<div class="total-bar">
+  <div>Total: Rp <span id="total">0</span></div>
+  <button class="btn" onclick="toForm()">Lanjut</button>
+</div>
+
+</div>
+
+<!-- ================= PAGE 2 ================= -->
+<div class="page" id="page2">
+
+<h2>Form Pembelian</h2>
+
+<input id="nama" placeholder="Nama Lengkap">
+<input id="nik" placeholder="NIK / SIM / Passport">
+<input id="email" placeholder="Email">
+<input id="wa" placeholder="No WhatsApp">
+<input id="alamat" placeholder="Alamat">
+
+<select id="kategori">
+  <option value="">Pilih Kategori</option>
+  <option>VIP</option>
+  <option>Intimate Couple</option>
+</select>
+
+<input id="jumlah" type="number" placeholder="Jumlah Tiket">
+
+<button class="btn" onclick="toPayment()">Lanjut Pembayaran</button>
+
+</div>
+
+<!-- ================= PAGE 3 ================= -->
+<div class="page" id="page3">
+
+<h2 class="center">QRIS Payment</h2>
+
+<div class="card center">
+  <img src="QRIS_KAMU.png" width="200"><br><br>
+  <b>Total: Rp <span id="totalBayar"></span></b>
+</div>
+
+<input type="file" id="bukti">
+
+<button class="btn" onclick="beli()">Beli Sekarang</button>
+
+</div>
+
+<script>
+let harga={vip:400000,couple:350000};
+
+function changeQty(id,val){
+ let el=document.getElementById(id);
+ let num=parseInt(el.innerText)+val;
+ if(num<0)num=0;
+ el.innerText=num;
+ hitung();
+}
+
+function hitung(){
+ let vip=parseInt(vipEl.innerText||0);
+ let couple=parseInt(coupleEl.innerText||0);
+ let total=(vip*harga.vip)+(couple*harga.couple);
+ document.getElementById("total").innerText=total.toLocaleString();
+}
+
+const vipEl=document.getElementById("vip");
+const coupleEl=document.getElementById("couple");
+
+function toForm(){
+ if(document.getElementById("total").innerText=="0"){
+  alert("Pilih tiket dulu!");
+  return;
+ }
+ show(2);
+}
+
+function toPayment(){
+ let ids=["nama","nik","email","wa","alamat","kategori","jumlah"];
+ for(let i of ids){
+  if(document.getElementById(i).value==""){
+    alert("Semua wajib diisi!");
+    return;
+  }
+ }
+
+ let kat=document.getElementById("kategori").value;
+ let jml=document.getElementById("jumlah").value;
+
+ let total=(kat=="VIP"?harga.vip:harga.couple)*jml;
+ document.getElementById("totalBayar").innerText=total.toLocaleString();
+
+ show(3);
+}
+
+function beli(){
+ if(document.getElementById("bukti").value==""){
+  alert("Upload bukti!");
+  return;
+ }
+
+ document.body.innerHTML="<h2 style='text-align:center;margin-top:50%;'>Memproses...</h2>";
+
+ setTimeout(()=>{
+  alert("Pembelian Berhasil!");
+  location.reload();
+ },2000);
+}
+
+function show(p){
+ document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
+ document.getElementById("page"+p).classList.add("active");
+}
+</script>
+
+</body>
+</html>
